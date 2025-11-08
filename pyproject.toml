@@ -8,5 +8,9 @@ dependencies = ["click>=8.1", "rich>=13.0", "ruff", "black", "flake8", "pytest"]
 [project.optional-dependencies]
 dev = ["isort"]
 
+[tool.black]
+line-length = 120
+target-version = ["py39", "py310", "py311"]
+
 [project.scripts]
 toolbelt = "toolbelt.__main__:main"

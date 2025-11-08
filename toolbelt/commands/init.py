@@ -76,16 +76,20 @@ DEFAULT_REQS = [
     "pytest>=7.0.0",
 ]
 
+
 def write_if_absent(path: Path, content: str):
     if not path.exists():
         path.write_text(content, encoding="utf-8")
 
+
 def ensure_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
+
 
 @click.group(help="Project bootstrappers")
 def init():
     pass
+
 
 @init.command("python", help="Create a new Python repo with venv, .gitignore, requirements, and initial commit.")
 @click.option("--name", default=".", help="Project directory ('.' = current).", show_default=True)
@@ -138,6 +142,7 @@ def init_python(name: str, empty_reqs: bool):
     log.ok("Done!")
     log.info("Activate your virtualenv with:")
     log.info(f"[dim]source {act}[/]" if os.name != "nt" else f"[dim]{act}[/]")
+
 
 @init.command("npm", help="Create a new Node repo with npm init, .gitignore, and initial commit.")
 @click.option("--name", default=".", help="Project directory ('.' = current).", show_default=True)
