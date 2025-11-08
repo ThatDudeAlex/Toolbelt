@@ -1,5 +1,5 @@
 import click
-from utils import log, sh
+from toolbelt.utils import log, sh
 
 @click.group(help="Developer helpers")
 def dev():

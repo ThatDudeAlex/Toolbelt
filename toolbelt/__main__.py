@@ -1,6 +1,6 @@
 import click
-from commands.dev import dev
-from commands.init import init
+from toolbelt.commands.dev import dev
+from toolbelt.commands.init import init
 
 @click.group(context_settings=dict(help_option_names=["-h", "--help"]))
 def main():

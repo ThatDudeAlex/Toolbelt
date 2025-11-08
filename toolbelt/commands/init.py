@@ -3,7 +3,7 @@ from pathlib import Path
 import sys
 import venv
 import click
-from utils import log, sh
+from toolbelt.utils import log, sh
 
 PY_GITIGNORE = """# Byte-compiled / optimized / DLL files
 .DS_Store
