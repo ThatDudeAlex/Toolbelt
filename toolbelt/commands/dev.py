@@ -1,3 +1,4 @@
+import sys
 import click
 from toolbelt.utils import log, sh
 
@@ -19,8 +20,13 @@ def lint(path: str):
             log.warn("No linter found (ruff/flake8). Install ruff with: pipx install ruff")
             return
         log.ok("Lint completed")
-    except Exception as e:
-        log.err(str(e))
+    except sh.ShellError as e:
+        # You can print the captured out/err from the exception too:
+        if e.out:
+            print(e.out, end="")
+        if e.err:
+            print(e.err, end="", file=sys.stderr)
+        log.err(f"Command failed ({e.code}): {' '.join(e.cmd)}")
         raise SystemExit(1)
 
 @dev.command(help="Auto-format code (black + isort if available).")
@@ -28,21 +34,32 @@ def lint(path: str):
 def format(path: str):
     try:
         ran_any = False
+
         if sh.which("black"):
             log.info("Running black …")
             sh.run(["black", path])
             ran_any = True
+
         if sh.which("isort"):
             log.info("Running isort …")
             sh.run(["isort", path])
             ran_any = True
+
         if not ran_any:
             log.warn("Neither black nor isort found. Try: pipx install black isort")
             return
+
         log.ok("Formatting completed")
-    except Exception as e:
-        log.err(str(e))
+
+    except sh.ShellError as e:
+        # Same pattern you used in lint
+        if e.out:
+            print(e.out, end="")
+        if e.err:
+            print(e.err, end="", file=sys.stderr)
+        log.err(f"Command failed ({e.code}): {' '.join(e.cmd)}")
         raise SystemExit(1)
+
 
 @dev.command(help="Run tests (pytest if available, else unittest).")
 @click.option("--path", default=".", show_default=True)
@@ -54,7 +71,14 @@ def test(path: str):
         else:
             log.info("pytest not found; running Python unittest discovery …")
             sh.run(["python", "-m", "unittest", "discover", "-s", path])
+
         log.ok("Tests completed")
-    except Exception as e:
-        log.err(str(e))
+
+    except sh.ShellError as e:
+        # Show captured output from the failed test run
+        if e.out:
+            print(e.out, end="")
+        if e.err:
+            print(e.err, end="", file=sys.stderr)
+        log.err(f"Command failed ({e.code}): {' '.join(e.cmd)}")
         raise SystemExit(1)

@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import sys
 import venv
 import click
 from toolbelt.utils import log, sh
