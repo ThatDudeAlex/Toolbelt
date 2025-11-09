@@ -1,5 +1,6 @@
 import sys
 import click
+import importlib.util
 from toolbelt.utils import log, sh
 
 
@@ -13,28 +14,33 @@ def dev():
 @click.option("--fix", is_flag=True, help="Automatically fix issues.")
 def lint(path: str, fix: bool):
     try:
-        if sh.which("ruff"):
+        # Check if ruff is installed in the same environment
+        if importlib.util.find_spec("ruff") is not None:
             log.info("Running ruff …")
-            cmd = ["ruff", "check", path]
+            cmd = [sys.executable, "-m", "ruff", "check", path]
             if fix:
                 cmd.append("--fix")
             sh.run(cmd)
-        elif sh.which("flake8"):
+
+        # Fallback: flake8 (if installed)
+        elif importlib.util.find_spec("flake8") is not None:
             log.info("ruff not found; falling back to flake8 …")
-            sh.run(["flake8", path])
+            sh.run([sys.executable, "-m", "flake8", path])
+
         else:
-            log.warn("No linter found (ruff/flake8). Install ruff with: pipx install ruff")
+            log.warn("No linter found (ruff/flake8). Make sure toolbelt is installed with its dependencies.")
             return
+
         log.ok("Lint completed")
+
     except sh.ShellError as e:
-        # You can print the captured out/err from the exception too:
+        # Print captured stdout/stderr if available
         if e.out:
             print(e.out, end="")
         if e.err:
             print(e.err, end="", file=sys.stderr)
         log.err(f"Command failed ({e.code}): {' '.join(e.cmd)}")
         raise SystemExit(1)
-
 
 @dev.command(help="Auto-format code (black + isort if available).")
 @click.option("--path", default=".", show_default=True)
@@ -80,22 +86,60 @@ def format(path: str, check: bool, verbose: bool):
         raise SystemExit(1)
 
 
+import sys
+import click
+from utils import sh, log
+
+
 @dev.command(help="Run tests (pytest if available, else unittest).")
-@click.option("--path", default=".", show_default=True)
-def test(path: str):
+@click.option("--path", default=".", show_default=True,
+              help="Path to tests or project root.")
+@click.option("--verbose", "-v", is_flag=True,
+              help="Verbose pytest output (show all tests).")
+@click.option("--fail-fast", "-x", is_flag=True,
+              help="Stop after first failure (pytest --maxfail=1).")
+@click.option("--nocapture", "-s", is_flag=True,
+              help="Show print() output during tests (pytest -s).")
+@click.option("--ci", is_flag=True,
+    help="CI mode: fail fast, disable warnings, no color, short tracebacks.",
+)
+def test(path: str, verbose: bool, fail_fast: bool, nocapture: bool, ci: bool):
+    """
+    Run tests using pytest if available, otherwise fall back to unittest.
+    """
     try:
         if sh.which("pytest"):
             log.info("Running pytest …")
-            sh.run([
-                "pytest",
-                "-q",           # quiet summary
-                "--tb=short",   # compact tracebacks
-                "--color=yes",  # always color
-                path,
-            ])
+
+            cmd = ["pytest", path]
+
+            # Base traceback + color behavior
+            if ci:
+                # CI-friendly: minimal noise, deterministic output
+                cmd.extend(["--maxfail=1", "--disable-warnings", "--color=no", "--tb=short"])
+            else:
+                cmd.extend(["--tb=short", "--color=yes"])
+
+            # Verbosity: default quiet, unless verbose explicitly set
+            if verbose:
+                cmd.append("-v")
+            else:
+                cmd.append("-q")
+
+            # Fail-fast flag (add if not already set by --ci)
+            if fail_fast and "--maxfail=1" not in cmd:
+                cmd.append("--maxfail=1")
+
+            # Show print() output during tests
+            if nocapture:
+                cmd.append("-s")
+
+            sh.run(cmd)
+
         else:
             log.info("pytest not found; running Python unittest discovery …")
-            sh.run(["python", "-m", "unittest", "discover", "-s", path])
+            # Use the same interpreter for unittest
+            sh.run([sys.executable, "-m", "unittest", "discover", "-s", path])
 
         log.ok("Tests completed")
 
