@@ -6,12 +6,11 @@ from toolbelt.utils import log, sh
 from importlib import resources
 import shutil
 
-
-HERE = Path(__file__).resolve()
-PROJECT_ROOT = HERE.parents[1]          # .../toolbelt
-TEMPLATES_DIR = PROJECT_ROOT / "templates"
+# Directory: .../toolbelt/templates
+TEMPLATES_DIR = Path(__file__).resolve().parents[1] / "templates"
 
 def template_path(*parts: str) -> Path:
+    """Return a concrete Path inside toolbelt/templates/..."""
     return TEMPLATES_DIR.joinpath(*parts)
 
 
@@ -20,16 +19,18 @@ def copy_file(src: Path, dst: Path) -> None:
     shutil.copy2(src, dst)
 
 
-def copy_precommit_config(project_root: Path):
+def copy_precommit_config(project_root: Path) -> None:
     dst = project_root / ".pre-commit-config.yaml"
     src = template_path("python", ".pre-commit-config.yaml")
     copy_file(src, dst)
 
 
-def copy_and_install_reqs(project_root: Path, venv_dir: Path, empty_reqs: bool):
+def copy_and_install_reqs(project_root: Path, venv_dir: Path, empty_reqs: bool) -> None:
     dst = project_root / "requirements.txt"
+
     if empty_reqs:
         dst.touch()
+        log.info("Created empty requirements.txt")
     else:
         src = template_path("python", "requirements.txt")
         copy_file(src, dst)
@@ -37,12 +38,11 @@ def copy_and_install_reqs(project_root: Path, venv_dir: Path, empty_reqs: bool):
 
         pip_bin = venv_dir / ("Scripts/pip.exe" if os.name == "nt" else "bin/pip")
         log.info("Installing requirements …")
-
         sh.run([str(pip_bin), "install", "-r", str(dst)])
         log.ok("Requirements installed")
 
 
-def copy_gitignore(project_root: Path):
+def copy_gitignore(project_root: Path) -> None:
     dst = project_root / ".gitignore"
     src = template_path(".gitignore")
     copy_file(src, dst)
