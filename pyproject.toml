@@ -25,3 +25,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["toolbelt*"]
+
+[tool.setuptools.package-data]
+# include EVERYTHING under toolbelt/templates (including .gitignore)
+"toolbelt" = ["templates/**/*"]

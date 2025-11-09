@@ -23,7 +23,9 @@ def err(msg: str):
 
 
 def header(title: str, subtitle: str = ""):
-    console.print(Panel.fit(title if not subtitle else f"{title}\n[dim]{subtitle}[/]", style="bold", box=box.ROUNDED))
+    console.print(
+        Panel.fit(title if not subtitle else f"{title}\n[dim]{subtitle}[/]", style="bold", box=box.ROUNDED)
+    )
 
 
 def step(msg: str):

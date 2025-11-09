@@ -17,7 +17,9 @@ def which(bin_name: str) -> Optional[str]:
 def run(
     cmd: Sequence[str], cwd: Optional[str] = None, env: Optional[Mapping[str, str]] = None, check: bool = True
 ) -> Tuple[str, str]:
-    p = subprocess.run(cmd, cwd=cwd, env=None if env is None else {**os.environ, **env}, text=True, capture_output=True)
+    p = subprocess.run(
+        cmd, cwd=cwd, env=None if env is None else {**os.environ, **env}, text=True, capture_output=True
+    )
     if check and p.returncode != 0:
         raise ShellError(cmd, p.returncode, p.stdout, p.stderr)
     return p.stdout.strip(), p.stderr.strip()

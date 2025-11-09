@@ -21,7 +21,7 @@ def copy_file(src: Path, dst: Path) -> None:
 
 def copy_precommit_config(project_root: Path) -> None:
     dst = project_root / ".pre-commit-config.yaml"
-    src = template_path("python", ".pre-commit-config.yaml")
+    src = template_path("python", "pre-commit-config.yaml")
     copy_file(src, dst)
 
 
@@ -34,7 +34,7 @@ def copy_and_install_reqs(project_root: Path, venv_dir: Path, empty_reqs: bool) 
     else:
         src = template_path("python", "requirements.txt")
         copy_file(src, dst)
-        log.info("requirements.txt created with common dev tools")
+        log.ok("requirements.txt created with common dev tools")
 
         pip_bin = venv_dir / ("Scripts/pip.exe" if os.name == "nt" else "bin/pip")
         log.info("Installing requirements …")
@@ -44,9 +44,9 @@ def copy_and_install_reqs(project_root: Path, venv_dir: Path, empty_reqs: bool) 
 
 def copy_gitignore(project_root: Path) -> None:
     dst = project_root / ".gitignore"
-    src = template_path(".gitignore")
+    src = template_path("gitignore")
     copy_file(src, dst)
-    log.ok("Added .gitignore")
+    log.ok("Wrote .gitignore")
 
 
 def write_if_absent(path: Path, content: str):
@@ -80,7 +80,6 @@ def init_python(name: str, empty_reqs: bool):
         log.warn(f"Git init skipped: {e}")
 
     copy_gitignore(project_root)
-    log.ok("Wrote .gitignore")
 
     venv_dir = project_root / "venv"
     if not venv_dir.exists():
