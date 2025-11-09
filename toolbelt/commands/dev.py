@@ -45,25 +45,31 @@ def lint(path: str, fix: bool):
 
 @dev.command(help="Auto-format code (black + isort if available).")
 @click.option("--path", default=".", show_default=True)
-@click.option("--check", is_flag=True, help="Don’t modify files, just report which ones would be reformatted")
-@click.option("--verbose", is_flag=True, help="Show all files being processed")
+@click.option("--check", is_flag=True,
+help="Don’t modify files, just report which ones would be reformatted.",
+)
+@click.option("--verbose", is_flag=True,
+    help="Show all files being processed.",
+)
 def format(path: str, check: bool, verbose: bool):
+    """Format code using the built-in Black (and isort if installed)."""
     try:
         ran_any = False
 
-        if sh.which("black"):
-            log.info("Running black …")
-            cmd = ["black", path]
-            if check:
-                cmd.extend(["--check", "--diff"])
-            if verbose:
-                cmd.append("--verbose")
-            sh.run(cmd)
-            ran_any = True
+        # --- Run Black (always available since it's a dependency) ---
+        log.info("Running black …")
+        cmd = [sys.executable, "-m", "black", path]
+        if check:
+            cmd.extend(["--check", "--diff"])
+        if verbose:
+            cmd.append("--verbose")
+        sh.run(cmd)
+        ran_any = True
 
-        if sh.which("isort"):
+        # --- Run isort if available (optional dependency) ---
+        if importlib.util.find_spec("isort") is not None:
             log.info("Running isort …")
-            cmd = ["isort", path]
+            cmd = [sys.executable, "-m", "isort", path]
             if check:
                 cmd.extend(["--check-only", "--diff"])
             if verbose:
@@ -72,13 +78,13 @@ def format(path: str, check: bool, verbose: bool):
             ran_any = True
 
         if not ran_any:
-            log.warn("Neither black nor isort found. Try: pipx install black isort")
+            log.warn("No formatters found. Try installing optional dependency: isort")
             return
 
         log.ok("Formatting completed")
 
     except sh.ShellError as e:
-        # Same pattern you used in lint
+        # Print captured output if formatting fails
         if e.out:
             print(e.out, end="")
         if e.err:
