@@ -7,44 +7,52 @@ from importlib import resources
 import shutil
 
 
+HERE = Path(__file__).resolve()
+PROJECT_ROOT = HERE.parents[1]          # .../toolbelt
+TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
-def copy_file(destination: Path, package: str, filename: str):
-    with resources.path(package, filename) as src:
-            shutil.copy(src, destination)
+def template_path(*parts: str) -> Path:
+    return TEMPLATES_DIR.joinpath(*parts)
+
+
+def copy_file(src: Path, dst: Path) -> None:
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+
 
 def copy_precommit_config(project_root: Path):
-    destination = project_root / ".pre-commit-config.yaml"
-    copy_file(destination, "toolbelt.templates.python", ".pre-commit-config.yaml")
-    print("Added .pre-commit-config.yaml")
+    dst = project_root / ".pre-commit-config.yaml"
+    src = template_path("python", ".pre-commit-config.yaml")
+    copy_file(src, dst)
 
-def copy_requirements(project_root: Path, venv_dir: Path, empty_reqs: bool):
-    # Destination path in the new project
-    destination = project_root / "requirements.txt"
 
+def copy_and_install_reqs(project_root: Path, venv_dir: Path, empty_reqs: bool):
+    dst = project_root / "requirements.txt"
     if empty_reqs:
-        write_if_absent(destination, "")
-        log.info("Created empty requirements.txt")
+        dst.touch()
     else:
-        # Read the file packaged inside your toolbelt/templates/python/
-        copy_file(destination, "toolbelt.templates.python", "requirements.txt")
+        src = template_path("python", "requirements.txt")
+        copy_file(src, dst)
         log.info("requirements.txt created with common dev tools")
 
         pip_bin = venv_dir / ("Scripts/pip.exe" if os.name == "nt" else "bin/pip")
         log.info("Installing requirements …")
 
-        sh.run([str(pip_bin), "install", "-r", str(destination)])
+        sh.run([str(pip_bin), "install", "-r", str(dst)])
         log.ok("Requirements installed")
 
 
 def copy_gitignore(project_root: Path):
-    destination = project_root / ".gitignore"
-    copy_file(destination, "toolbelt.templates", ".gitignore")
-    print("Added .pre-commit-config.yaml")
+    dst = project_root / ".gitignore"
+    src = template_path(".gitignore")
+    copy_file(src, dst)
+    log.ok("Added .gitignore")
 
 
 def write_if_absent(path: Path, content: str):
     if not path.exists():
         path.write_text(content, encoding="utf-8")
+
 
 def write_gitignore(project_root: Path) -> None:
     content = resources.files("toolbelt.templates").joinpath("gitignore-global").read_text()
