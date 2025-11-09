@@ -42,6 +42,7 @@ def lint(path: str, fix: bool):
         log.err(f"Command failed ({e.code}): {' '.join(e.cmd)}")
         raise SystemExit(1)
 
+
 @dev.command(help="Auto-format code (black + isort if available).")
 @click.option("--path", default=".", show_default=True)
 @click.option("--check", is_flag=True, help="Don’t modify files, just report which ones would be reformatted")
@@ -84,11 +85,6 @@ def format(path: str, check: bool, verbose: bool):
             print(e.err, end="", file=sys.stderr)
         log.err(f"Command failed ({e.code}): {' '.join(e.cmd)}")
         raise SystemExit(1)
-
-
-import sys
-import click
-from utils import sh, log
 
 
 @dev.command(help="Run tests (pytest if available, else unittest).")
