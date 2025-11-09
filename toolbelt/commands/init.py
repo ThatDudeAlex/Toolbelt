@@ -110,9 +110,9 @@ def init_python(name: str, empty_reqs: bool):
     write_if_absent(root / ".gitignore", PY_GITIGNORE)
     log.ok("Wrote .gitignore")
 
-    venv_dir = root / ".venv"
+    venv_dir = root / "venv"
     if not venv_dir.exists():
-        log.info("Creating virtual environment (.venv) …")
+        log.info("Creating virtual environment (venv) …")
         builder = venv.EnvBuilder(with_pip=True)
         builder.create(venv_dir)
         log.ok("Virtual environment created")
@@ -136,12 +136,14 @@ def init_python(name: str, empty_reqs: bool):
     except Exception as e:
         log.warn(f"Git commit skipped: {e}")
 
-    act = f"{venv_dir}/bin/activate"
-    if os.name == "nt":
-        act = f"{venv_dir}\\Scripts\\activate"
     log.ok("Done!")
-    log.info("Activate your virtualenv with:")
-    log.info(f"[dim]source {act}[/]" if os.name != "nt" else f"[dim]{act}[/]")
+
+    log.info("Activate your virtual environment with:")
+    if os.name == "nt":
+        log.info("[dim]venv\\Scripts\\activate[/]")
+    else:
+        log.info("[dim]source venv/bin/activate[/]")
+
 
 
 @init.command("npm", help="Create a new Node repo with npm init, .gitignore, and initial commit.")
