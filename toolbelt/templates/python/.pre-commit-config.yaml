@@ -1,0 +1,38 @@
+# .pre-commit-config.yaml
+# Universal pre-commit setup for Python projects
+# Copy this file into each repo on initialization
+
+repos:
+  # --- Basic hygiene checks ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: detect-merge-conflict
+
+  # --- Python formatting ---
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        language_version: python3
+
+  # --- Linting / static analysis ---
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.3
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # --- Optional: sort imports automatically (Ruff can do this too) ---
+  # Uncomment if you prefer isort explicitly
+  # - repo: https://github.com/PyCQA/isort
+  #   rev: 5.12.0
+  #   hooks:
+  #     - id: isort
+  #       name: isort (python import sorter)
+  #       language_version: python3

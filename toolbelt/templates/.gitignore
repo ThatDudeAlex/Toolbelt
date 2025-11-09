@@ -1,0 +1,246 @@
+# =====================================================
+# OS / Editor Junk
+# =====================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+__MACOSX/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+# General editor backup/swap
+*.bak
+*.swp
+*.swo
+*.tmp
+*.temp
+*.orig
+*.old
+
+# VSCode / JetBrains / Sublime
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# =====================================================
+# Node / JavaScript / TypeScript / Frontend
+# =====================================================
+
+# Dependencies
+node_modules/
+jspm_packages/
+bower_components/
+functions/node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build / Cache
+dist/
+build/
+public/build/
+.cache/
+.next/
+out/
+tmp/
+temp/
+logs/
+*.log
+
+# Common frameworks / tools
+.storybook-out/
+.nuxt/
+.svelte-kit/
+.vercel/
+.netlify/
+.hugo_build.lock
+.parcel-cache/
+.turbo/
+.stylelintcache
+.eslintcache
+*.tsbuildinfo
+
+# Environment files (secrets, local config)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =====================================================
+# Python / Django / Flask / FastAPI
+# =====================================================
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Packaging / build artifacts
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+wheels/
+pip-wheel-metadata/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+
+# Test / coverage / tooling
+.tox/
+.nox/
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pyre/
+.pytype/
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+.flake8cache/
+
+# Databases (commonly local only)
+*.sqlite3
+*.sqlite
+*.db
+*.db-journal
+
+# Jupyter
+.ipynb_checkpoints/
+jupyter_notebook_config.json
+
+# =====================================================
+# Linters / Formatters (multi-language)
+# =====================================================
+
+# Python linters / tools
+pylint-report.txt
+pylint.log
+
+# JS/TS linters / formatters
+.prettier_cache/
+eslint-debug.log
+
+# Generic reports
+reports/
+
+# =====================================================
+# Other Languages / Build Artifacts
+# =====================================================
+
+# Java / JVM
+target/
+*.class
+*.war
+*.ear
+
+# Rust
+target/
+
+# Go
+*.test
+
+# C / C++
+*.o
+*.obj
+*.a
+*.out
+*.exe
+*.dll
+*.dylib
+*.gcno
+*.gcda
+*.gcov
+
+# =====================================================
+# Containers / Cloud / Infra
+# =====================================================
+
+# Docker
+# (Keep Dockerfile and docker-compose*.yml tracked!)
+.docker/
+**/docker-cache/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.crash
+.terraform.lock.hcl
+
+# Kubernetes
+.kube/
+
+# Cloud CLIs
+.aws/
+.gcloud/
+.azure/
+
+# Keys / certs (usually local-only; be careful if you *do* want to track some)
+*.pem
+*.key
+*.crt
+*.csr
+
+# =====================================================
+# IDEs / Misc Tools
+# =====================================================
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Eclipse
+.project
+.classpath
+.settings/
+.loadpath
+
+# Other generic caches
+.cache/
+
+# =====================================================
+# Generic Logs / Temp / Local Config
+# =====================================================
+
+*.log
+coverage/
+tmp/
+temp/
+*.local
+*.secret

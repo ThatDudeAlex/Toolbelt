@@ -3,83 +3,53 @@ from pathlib import Path
 import venv
 import click
 from toolbelt.utils import log, sh
+from importlib import resources
+import shutil
 
-PY_GITIGNORE = """# Byte-compiled / optimized / DLL files
-.DS_Store
-__pycache__/
-*.py[cod]
-*$py.class
 
-# C extensions
-*.so
 
-# Virtual environments
-.venv/
-venv/
-ENV/
+def copy_file(destination: Path, package: str, filename: str):
+    with resources.path(package, filename) as src:
+            shutil.copy(src, destination)
 
-# Distribution / packaging
-.build/
-dist/
-build/
-.eggs/
-*.egg-info/
+def copy_precommit_config(project_root: Path):
+    destination = project_root / ".pre-commit-config.yaml"
+    copy_file(destination, "toolbelt.templates.python", ".pre-commit-config.yaml")
+    print("Added .pre-commit-config.yaml")
 
-# Testing / coverage
-.coverage*
-.pytest_cache/
-.tox/
+def copy_requirements(project_root: Path, venv_dir: Path, empty_reqs: bool):
+    # Destination path in the new project
+    destination = project_root / "requirements.txt"
 
-# IDEs/editors
-.vscode/
-.idea/
+    if empty_reqs:
+        write_if_absent(destination, "")
+        log.info("Created empty requirements.txt")
+    else:
+        # Read the file packaged inside your toolbelt/templates/python/
+        copy_file(destination, "toolbelt.templates.python", "requirements.txt")
+        log.info("requirements.txt created with common dev tools")
 
-# Logs
-*.log
+        pip_bin = venv_dir / ("Scripts/pip.exe" if os.name == "nt" else "bin/pip")
+        log.info("Installing requirements …")
 
-# Environment
-.env
-.env.*
-"""
+        sh.run([str(pip_bin), "install", "-r", str(destination)])
+        log.ok("Requirements installed")
 
-NODE_GITIGNORE = """# dependencies
-.DS_Store
-node_modules/
-.pnpm-store/
-.bun/
 
-# build outputs
-dist/
-build/
-coverage/
-.cache/
-.next/
-out/
-
-# env and logs
-.env
-.env.*
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# editors
-.vscode/
-.idea/
-"""
-
-DEFAULT_REQS = [
-    "black>=24.0.0",
-    "isort>=5.12.0",
-    "ruff>=0.5.0",
-    "pytest>=7.0.0",
-]
+def copy_gitignore(project_root: Path):
+    destination = project_root / ".gitignore"
+    copy_file(destination, "toolbelt.templates", ".gitignore")
+    print("Added .pre-commit-config.yaml")
 
 
 def write_if_absent(path: Path, content: str):
     if not path.exists():
         path.write_text(content, encoding="utf-8")
+
+def write_gitignore(project_root: Path) -> None:
+    content = resources.files("toolbelt.templates").joinpath("gitignore-global").read_text()
+    (project_root / ".gitignore").write_text(content)
+    log.ok("Added .gitignore")
 
 
 def ensure_dir(path: Path):
@@ -95,43 +65,33 @@ def init():
 @click.option("--name", default=".", help="Project directory ('.' = current).", show_default=True)
 @click.option("--empty-reqs", is_flag=True, help="Create empty requirements.txt (no default dev deps).")
 def init_python(name: str, empty_reqs: bool):
-    root = Path(name).resolve()
-    ensure_dir(root)
-    log.header("Bootstrap: Python project", str(root))
+    project_root = Path(name).resolve()
+    ensure_dir(project_root)
+    log.header("Bootstrap: Python project", str(project_root))
 
     try:
         sh.ensure_bin("git")
-        if not (root / ".git").exists():
+        if not (project_root / ".git").exists():
             log.info("Initializing git repo …")
-            sh.run(["git", "init"], cwd=str(root))
+            sh.run(["git", "init"], cwd=str(project_root))
     except Exception as e:
         log.warn(f"Git init skipped: {e}")
 
-    write_if_absent(root / ".gitignore", PY_GITIGNORE)
+    write_gitignore(project_root)
     log.ok("Wrote .gitignore")
 
-    venv_dir = root / "venv"
+    venv_dir = project_root / "venv"
     if not venv_dir.exists():
         log.info("Creating virtual environment (venv) …")
         builder = venv.EnvBuilder(with_pip=True)
         builder.create(venv_dir)
         log.ok("Virtual environment created")
 
-    req_path = root / "requirements.txt"
-    if empty_reqs:
-        write_if_absent(req_path, "")
-        log.info("Created empty requirements.txt")
-    else:
-        write_if_absent(req_path, "\n".join(DEFAULT_REQS) + "\n")
-        log.info("requirements.txt created with common dev tools")
-        pip_bin = venv_dir / ("Scripts/pip.exe" if os.name == "nt" else "bin/pip")
-        log.info("Installing requirements …")
-        sh.run([str(pip_bin), "install", "-r", str(req_path)])
-        log.ok("Requirements installed")
+    copy_requirements(project_root, venv_dir, empty_reqs)
 
     try:
-        sh.run(["git", "add", "."], cwd=str(root))
-        sh.run(["git", "commit", "-m", "Initialize Python project"], cwd=str(root), check=False)
+        sh.run(["git", "add", "."], cwd=str(project_root))
+        sh.run(["git", "commit", "-m", "Initialize Python project"], cwd=str(project_root), check=False)
         log.ok("Initial commit created")
     except Exception as e:
         log.warn(f"Git commit skipped: {e}")
@@ -177,7 +137,7 @@ def init_npm(name: str):
         log.err(str(e))
         raise SystemExit(1)
 
-    write_if_absent(root / ".gitignore", NODE_GITIGNORE)
+    write_gitignore(root)
     log.ok("Wrote .gitignore")
 
     try:
