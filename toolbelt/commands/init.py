@@ -54,12 +54,6 @@ def write_if_absent(path: Path, content: str):
         path.write_text(content, encoding="utf-8")
 
 
-def write_gitignore(project_root: Path) -> None:
-    content = resources.files("toolbelt.templates").joinpath("gitignore-global").read_text()
-    (project_root / ".gitignore").write_text(content)
-    log.ok("Added .gitignore")
-
-
 def ensure_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
 
@@ -85,7 +79,7 @@ def init_python(name: str, empty_reqs: bool):
     except Exception as e:
         log.warn(f"Git init skipped: {e}")
 
-    write_gitignore(project_root)
+    copy_gitignore(project_root)
     log.ok("Wrote .gitignore")
 
     venv_dir = project_root / "venv"
@@ -95,7 +89,7 @@ def init_python(name: str, empty_reqs: bool):
         builder.create(venv_dir)
         log.ok("Virtual environment created")
 
-    copy_requirements(project_root, venv_dir, empty_reqs)
+    copy_and_install_reqs(project_root, venv_dir, empty_reqs)
 
     try:
         sh.run(["git", "add", "."], cwd=str(project_root))
@@ -145,7 +139,7 @@ def init_npm(name: str):
         log.err(str(e))
         raise SystemExit(1)
 
-    write_gitignore(root)
+    copy_gitignore(root)
     log.ok("Wrote .gitignore")
 
     try:
