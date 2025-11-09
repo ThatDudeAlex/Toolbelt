@@ -45,10 +45,14 @@ def lint(path: str, fix: bool):
 
 @dev.command(help="Auto-format code (black + isort if available).")
 @click.option("--path", default=".", show_default=True)
-@click.option("--check", is_flag=True,
-help="Don’t modify files, just report which ones would be reformatted.",
+@click.option(
+    "--check",
+    is_flag=True,
+    help="Don’t modify files, just report which ones would be reformatted.",
 )
-@click.option("--verbose", is_flag=True,
+@click.option(
+    "--verbose",
+    is_flag=True,
     help="Show all files being processed.",
 )
 def format(path: str, check: bool, verbose: bool):
@@ -94,15 +98,13 @@ def format(path: str, check: bool, verbose: bool):
 
 
 @dev.command(help="Run tests (pytest if available, else unittest).")
-@click.option("--path", default=".", show_default=True,
-              help="Path to tests or project root.")
-@click.option("--verbose", "-v", is_flag=True,
-              help="Verbose pytest output (show all tests).")
-@click.option("--fail-fast", "-x", is_flag=True,
-              help="Stop after first failure (pytest --maxfail=1).")
-@click.option("--nocapture", "-s", is_flag=True,
-              help="Show print() output during tests (pytest -s).")
-@click.option("--ci", is_flag=True,
+@click.option("--path", default=".", show_default=True, help="Path to tests or project root.")
+@click.option("--verbose", "-v", is_flag=True, help="Verbose pytest output (show all tests).")
+@click.option("--fail-fast", "-x", is_flag=True, help="Stop after first failure (pytest --maxfail=1).")
+@click.option("--nocapture", "-s", is_flag=True, help="Show print() output during tests (pytest -s).")
+@click.option(
+    "--ci",
+    is_flag=True,
     help="CI mode: fail fast, disable warnings, no color, short tracebacks.",
 )
 def test(path: str, verbose: bool, fail_fast: bool, nocapture: bool, ci: bool):
